@@ -1,0 +1,12 @@
+{{- if .Values.grafana.dashboard.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: factory-edge-dashboard
+  namespace: {{ .Values.grafana.dashboard.namespace }}
+  labels:
+    {{ .Values.grafana.dashboard.labelKey }}: {{ .Values.grafana.dashboard.labelValue | quote }}
+data:
+  factory-edge-dashboard.json: |
+{{ .Files.Get "dashboards/factory-edge-dashboard.json" | indent 4 }}
+{{- end }}

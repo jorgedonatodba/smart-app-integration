@@ -1,0 +1,21 @@
+{{- if .Values.monitoring.serviceMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "factory-edge.fullname" . }}-connector
+  namespace: {{ .Values.monitoring.serviceMonitor.namespace }}
+  labels:
+    release: {{ .Values.monitoring.serviceMonitor.releaseLabel | quote }}
+spec:
+  namespaceSelector:
+    matchNames:
+      - {{ .Values.namespace }}
+  selector:
+    matchLabels:
+      app: factory-edge
+      component: connector
+  endpoints:
+    - port: http-metrics
+      interval: {{ .Values.monitoring.serviceMonitor.interval | quote }}
+      path: /metrics
+{{- end }}

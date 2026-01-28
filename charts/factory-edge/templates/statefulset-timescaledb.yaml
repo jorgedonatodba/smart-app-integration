@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "factory-edge.fullname" . }}-db
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: factory-edge
+    component: db
+spec:
+  serviceName: {{ include "factory-edge.fullname" . }}-db
+  replicas: 1
+  selector:
+    matchLabels:
+      app: factory-edge
+      component: db
+  template:
+    metadata:
+      labels:
+        app: factory-edge
+        component: db
+    spec:
+      securityContext:
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: timescaledb
+          image: {{ .Values.images.timescaledb }}
+          ports:
+            - name: pg
+              containerPort: 5432
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            capabilities:
+              drop: ["ALL"]
+
+          env:
+            # IMPORTANT: avoid initdb failing due to lost+found on the PVC mountpoint
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "factory-edge.fullname" . }}-db
+                  key: POSTGRES_DB
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "factory-edge.fullname" . }}-db
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "factory-edge.fullname" . }}-db
+                  key: POSTGRES_PASSWORD
+
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: {{ .Values.storage.className | quote }}
+        resources:
+          requests:
+            storage: {{ .Values.storage.size | quote }}
+

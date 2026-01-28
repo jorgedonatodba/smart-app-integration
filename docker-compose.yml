@@ -1,0 +1,63 @@
+services:
+  mqtt:
+    image: eclipse-mosquitto:2
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+
+  db:
+    image: timescale/timescaledb:latest-pg16
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d historian"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: historian
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+  connector:
+    build: ./connector
+    environment:
+      MQTT_HOST: mqtt
+      MQTT_PORT: "1883"
+      MQTT_TOPIC: "uns/#"
+      PGHOST: db
+      PGPORT: "5432"
+      PGDATABASE: historian
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      METRICS_PORT: "8000"
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      mqtt:
+        condition: service_started
+
+  simulator:
+    build: ./simulator
+    environment:
+      MQTT_HOST: mqtt
+      MQTT_PORT: "1883"
+    depends_on: [mqtt]
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    depends_on: [prometheus, db]

@@ -1,0 +1,36 @@
+namespace: factory-edge
+
+images:
+  mosquitto: eclipse-mosquitto:2
+  timescaledb: timescale/timescaledb:latest-pg16
+  connector: docker.io/anselemo/factory-edge-connector:0.1.0
+  simulator: docker.io/anselemo/factory-edge-simulator:0.1.0
+
+storage:
+  className: longhorn
+  size: 10Gi
+
+db:
+  name: historian
+  user: postgres
+  password: "postgres"  # move to sealed secret later
+
+mqtt:
+  topic: "uns/#"
+
+monitoring:
+  serviceMonitor:
+    enabled: true
+    namespace: monitoring   # Prometheus lives here
+    interval: 15s
+    releaseLabel: kps
+
+grafana:
+  dashboard:
+    enabled: true
+    namespace: monitoring   # Grafana lives here
+    labelKey: grafana_dashboard
+    labelValue: "1"
+
+simulator:
+  enabled: true  # set false later

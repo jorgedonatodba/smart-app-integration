@@ -1,0 +1,30 @@
+{{- if .Values.simulator.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "factory-edge.fullname" . }}-simulator
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: factory-edge
+    component: simulator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: factory-edge
+      component: simulator
+  template:
+    metadata:
+      labels:
+        app: factory-edge
+        component: simulator
+    spec:
+      containers:
+        - name: simulator
+          image: {{ .Values.images.simulator }}
+          env:
+            - name: MQTT_HOST
+              value: {{ include "factory-edge.fullname" . }}-mqtt
+            - name: MQTT_PORT
+              value: "1883"
+{{- end }}

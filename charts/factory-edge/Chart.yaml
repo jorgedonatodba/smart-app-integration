@@ -1,0 +1,6 @@
+apiVersion: v2
+name: factory-edge
+description: UNS MQTT -> Connector -> Timescale Historian -> Observability
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
