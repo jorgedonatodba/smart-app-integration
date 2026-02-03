@@ -105,4 +105,4 @@ LIMIT 20;
 > ### What this demo proves (for factory edge)
 >  - This lab demonstrates a practical event-driven data pipeline at the edge: a consistent namespace for structured telemetry (UNS), containerized connectors, a historian for durable querying, and an operations-first observability layer (throughput, errors, and staleness detection). It is designed as a repeatable blueprint that can scale from a single pilot line to multi-site rollouts with standardization, monitoring, and incident handling.
 > ### Operating concept
->  - [See: Operating-Concept](https://github.com/anselem-okeke/smart-app-integration/blob/main/docs/operating-concept.md)
+>  - [Operating-Concept](https://github.com/anselem-okeke/smart-app-integration/blob/main/docs/operating-concept.md)

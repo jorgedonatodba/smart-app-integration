@@ -71,3 +71,5 @@ For production direction:
 - Configure broker auth + network policy
 - Deploy connector with site-specific config
 - Validate dashboards: ingest, errors, staleness, latest events
+
+### [Cluster Setup Using Helm Charts](https://github.com/anselem-okeke/smart-app-integration/blob/main/docs/cluster-runbook.md)
